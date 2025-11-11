@@ -15,6 +15,9 @@ const SiteSettingsManager: React.FC = () => {
   });
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string>('');
+  const [heroFile, setHeroFile] = useState<File | null>(null);
+  const [heroPreview, setHeroPreview] = useState<string>('');
+  const [galleryImages, setGalleryImages] = useState<string[]>([]);
 
   React.useEffect(() => {
     if (siteSettings) {
@@ -25,6 +28,8 @@ const SiteSettingsManager: React.FC = () => {
         currency_code: siteSettings.currency_code
       });
       setLogoPreview(siteSettings.site_logo);
+      setHeroPreview(siteSettings.hero_image);
+      setGalleryImages(siteSettings.gallery_images || []);
     }
   }, [siteSettings]);
 
@@ -48,14 +53,57 @@ const SiteSettingsManager: React.FC = () => {
     }
   };
 
+  const handleHeroChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setHeroFile(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setHeroPreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleGalleryAdd = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      try {
+        const uploadPromises = Array.from(files).map(file => uploadImage(file));
+        const uploadedUrls = await Promise.all(uploadPromises);
+        const newGalleryImages = [...galleryImages, ...uploadedUrls];
+        setGalleryImages(newGalleryImages);
+        await updateSiteSettings({ gallery_images: newGalleryImages });
+      } catch (error) {
+        console.error('Error uploading gallery images:', error);
+        alert('Failed to upload some images. Please try again.');
+      }
+    }
+  };
+
+  const handleGalleryRemove = async (index: number) => {
+    if (confirm('Are you sure you want to remove this image from the gallery?')) {
+      const newGalleryImages = galleryImages.filter((_, i) => i !== index);
+      setGalleryImages(newGalleryImages);
+      await updateSiteSettings({ gallery_images: newGalleryImages });
+    }
+  };
+
   const handleSave = async () => {
     try {
       let logoUrl = logoPreview;
+      let heroUrl = heroPreview;
       
       // Upload new logo if selected
       if (logoFile) {
-        const uploadedUrl = await uploadImage(logoFile, 'site-logo');
+        const uploadedUrl = await uploadImage(logoFile);
         logoUrl = uploadedUrl;
+      }
+
+      // Upload new hero image if selected
+      if (heroFile) {
+        const uploadedUrl = await uploadImage(heroFile);
+        heroUrl = uploadedUrl;
       }
 
       // Update all settings
@@ -64,11 +112,13 @@ const SiteSettingsManager: React.FC = () => {
         site_description: formData.site_description,
         currency: formData.currency,
         currency_code: formData.currency_code,
-        site_logo: logoUrl
+        site_logo: logoUrl,
+        hero_image: heroUrl
       });
 
       setIsEditing(false);
       setLogoFile(null);
+      setHeroFile(null);
     } catch (error) {
       console.error('Error saving site settings:', error);
     }
@@ -83,9 +133,12 @@ const SiteSettingsManager: React.FC = () => {
         currency_code: siteSettings.currency_code
       });
       setLogoPreview(siteSettings.site_logo);
+      setHeroPreview(siteSettings.hero_image);
+      setGalleryImages(siteSettings.gallery_images || []);
     }
     setIsEditing(false);
     setLogoFile(null);
+    setHeroFile(null);
   };
 
   if (loading) {
@@ -211,6 +264,95 @@ const SiteSettingsManager: React.FC = () => {
           ) : (
             <p className="text-gray-600">{siteSettings?.site_description}</p>
           )}
+        </div>
+
+        {/* Hero Image */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Hero Image (Homepage Banner)
+          </label>
+          <div className="space-y-4">
+            {heroPreview && (
+              <div className="w-full h-48 rounded-lg overflow-hidden bg-gray-100">
+                <img
+                  src={heroPreview}
+                  alt="Hero Image"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
+            {isEditing && (
+              <div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleHeroChange}
+                  className="hidden"
+                  id="hero-upload"
+                />
+                <label
+                  htmlFor="hero-upload"
+                  className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors duration-200 flex items-center space-x-2 cursor-pointer inline-flex"
+                >
+                  <Upload className="h-4 w-4" />
+                  <span>Upload Hero Image</span>
+                </label>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Gallery Images */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Gallery Images
+          </label>
+          <div className="space-y-4">
+            {galleryImages.length > 0 && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {galleryImages.map((image, index) => (
+                  <div key={index} className="relative aspect-square rounded-lg overflow-hidden bg-gray-100 group">
+                    <img
+                      src={image}
+                      alt={`Gallery ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                    {isEditing && (
+                      <button
+                        onClick={() => handleGalleryRemove(index)}
+                        className="absolute top-2 right-2 bg-red-600 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-red-700"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+            {isEditing && (
+              <div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleGalleryAdd}
+                  className="hidden"
+                  id="gallery-upload"
+                  disabled={uploading}
+                />
+                <label
+                  htmlFor="gallery-upload"
+                  className={`bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors duration-200 flex items-center space-x-2 cursor-pointer inline-flex ${
+                    uploading ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
+                >
+                  <Upload className="h-4 w-4" />
+                  <span>{uploading ? 'Uploading...' : 'Add Gallery Images'}</span>
+                </label>
+                <p className="text-xs text-gray-500 mt-2">You can select multiple images at once</p>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Currency Settings */}

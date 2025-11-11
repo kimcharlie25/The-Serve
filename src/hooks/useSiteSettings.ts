@@ -20,12 +20,22 @@ export const useSiteSettings = () => {
       if (error) throw error;
 
       // Transform the data into a more usable format
+      const galleryValue = data.find(s => s.id === 'gallery_images')?.value || '[]';
+      let galleryImages: string[] = [];
+      try {
+        galleryImages = JSON.parse(galleryValue);
+      } catch {
+        galleryImages = [];
+      }
+
       const settings: SiteSettings = {
         site_name: data.find(s => s.id === 'site_name')?.value || 'Beracah Cafe',
         site_logo: data.find(s => s.id === 'site_logo')?.value || '',
         site_description: data.find(s => s.id === 'site_description')?.value || '',
         currency: data.find(s => s.id === 'currency')?.value || 'PHP',
-        currency_code: data.find(s => s.id === 'currency_code')?.value || 'PHP'
+        currency_code: data.find(s => s.id === 'currency_code')?.value || 'PHP',
+        hero_image: data.find(s => s.id === 'hero_image')?.value || 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=2000&q=80',
+        gallery_images: galleryImages
       };
 
       setSiteSettings(settings);
@@ -61,12 +71,14 @@ export const useSiteSettings = () => {
     try {
       setError(null);
 
-      const updatePromises = Object.entries(updates).map(([key, value]) =>
-        supabase
+      const updatePromises = Object.entries(updates).map(([key, value]) => {
+        // Convert array to JSON string for gallery_images
+        const finalValue = key === 'gallery_images' ? JSON.stringify(value) : value as string;
+        return supabase
           .from('site_settings')
-          .update({ value })
-          .eq('id', key)
-      );
+          .update({ value: finalValue })
+          .eq('id', key);
+      });
 
       const results = await Promise.all(updatePromises);
       

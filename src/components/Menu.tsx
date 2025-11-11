@@ -1,6 +1,7 @@
 import React from 'react';
 import { MenuItem, CartItem } from '../types';
 import { useCategories } from '../hooks/useCategories';
+import { useSiteSettings } from '../hooks/useSiteSettings';
 import MenuItemCard from './MenuItemCard';
 
 // Preload images for better performance
@@ -22,6 +23,7 @@ interface MenuProps {
 
 const Menu: React.FC<MenuProps> = ({ menuItems, addToCart, cartItems, updateQuantity }) => {
   const { categories } = useCategories();
+  const { siteSettings } = useSiteSettings();
   const [activeCategory, setActiveCategory] = React.useState('hot-coffee');
 
   // Preload images when menu items change
@@ -70,55 +72,16 @@ const Menu: React.FC<MenuProps> = ({ menuItems, addToCart, cartItems, updateQuan
 
   return (
     <>
-      <main className="pb-16">
-      {/* Event Catering Section */}
-      <div className="text-center mb-16">
-        <div className="w-full bg-secondary p-6 sm:p-8">
-          <h3 className="text-2xl sm:text-4xl font-heading font-bold text-black mb-6 mt-8">
-            PERFECT ADDITION TO YOUR SPECIAL DAY!
-          </h3>
-          
-          <p className="text-sm sm:text-base font-body text-gray-900 mb-6">
-            Birthdays, Wedding, Reunions, School Events, Corporate Events, Small Gathering etc.
-          </p>
-          
-          
-            <p className="text-base sm:text-lg font-body font-semibold text-black mb-4">
-              Inclusions:
-            </p>
-            <ul className="space-y-2 text-left max-w-2xl mx-auto font-body text-gray-900 text-sm sm:text-base mb-8">
-              <li>• Coffee Cart Set-up</li>
-              <li>• Menu Board</li>
-              <li>• Custom Event Signage</li>
-              <li>• Customized Claiming Stub (to be provided before the event starts)</li>
-            </ul>
-            <div className="border-t border-black/20 pt-1">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mt-8 max-w-4xl mx-auto">
-              <div className="text-left md:text-center">
-                <p className="text-base sm:text-lg font-body font-semibold text-black mb-4">
-                  ADDITIONALS:
-                </p>
-                <ul className="space-y-2 font-body text-gray-900 text-sm sm:text-base md:inline-block md:text-left">
-                  <li>+ 1 Hour - P500</li>
-                  <li>+ 10 Cups - P1,000</li>
-                </ul>
-              </div>
-
-              <div className="text-left md:text-center">
-                <p className="text-base sm:text-lg font-body font-semibold text-black mb-4">
-                  TRANSPORTATION FEE:
-                </p>
-                <ul className="space-y-2 font-body text-gray-900 text-sm sm:text-base md:inline-block md:text-left">
-                  <li>Nearby Areas (Bulacan) - FREE</li>
-                  <li>Other Areas - starts at P1,000<br/><span className="text-xs">(depends on location)</span></li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
+      {/* Hero Image Section */}
+      <div className="w-full h-[400px] sm:h-[500px] md:h-[600px] overflow-hidden bg-gray-200">
+        <img 
+          src={siteSettings?.hero_image || "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=2000&q=80"} 
+          alt={siteSettings?.site_name || "The Serve"} 
+          className="w-full h-full object-cover"
+        />
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
       {categories.map((category) => {
         const categoryItems = menuItems.filter(item => item.category === category.id);
         
@@ -148,7 +111,29 @@ const Menu: React.FC<MenuProps> = ({ menuItems, addToCart, cartItems, updateQuan
           </section>
         );
       })}
-      </div>
+
+      {/* Gallery Section */}
+      {siteSettings?.gallery_images && siteSettings.gallery_images.length > 0 && (
+        <section className="mt-20 mb-16">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl sm:text-5xl font-heading font-bold text-black mb-4">Gallery</h2>
+            <p className="text-gray-700 font-body text-lg">Moments from our events and celebrations</p>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {siteSettings.gallery_images.map((image, index) => (
+              <div key={index} className="relative aspect-square overflow-hidden rounded-xl shadow-md hover:shadow-2xl transition-all duration-300 group">
+                <img
+                  src={image}
+                  alt={`Gallery image ${index + 1}`}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  loading="lazy"
+                />
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
       </main>
     </>
   );
