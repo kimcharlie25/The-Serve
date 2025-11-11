@@ -23,14 +23,14 @@ const Cart: React.FC<CartProps> = ({
 }) => {
   if (cartItems.length === 0) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-12">
-        <div className="text-center py-16">
-          <div className="text-6xl mb-4">☕</div>
-          <h2 className="text-2xl font-playfair font-medium text-black mb-2">Your cart is empty</h2>
-          <p className="text-gray-600 mb-6">Add some delicious items to get started!</p>
+      <div className="max-w-4xl mx-auto px-4 py-16">
+        <div className="text-center py-20 bg-white rounded-3xl shadow-lg">
+          <div className="text-8xl mb-6">🛒</div>
+          <h2 className="text-4xl font-heading font-bold text-black mb-3">Your cart is empty</h2>
+          <p className="text-gray-600 font-body text-lg mb-8">Start adding some delicious items!</p>
           <button
             onClick={onContinueShopping}
-            className="bg-red-600 text-white px-6 py-3 rounded-full hover:bg-red-700 transition-all duration-200"
+            className="bg-secondary hover:bg-accent-dark text-white px-8 py-4 rounded-xl transition-all duration-300 font-body font-bold text-lg shadow-lg transform hover:scale-105"
           >
             Browse Menu
           </button>
@@ -40,72 +40,71 @@ const Cart: React.FC<CartProps> = ({
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-8">
+    <div className="max-w-5xl mx-auto px-4 py-10">
+      <div className="flex items-center justify-between mb-10">
         <button
           onClick={onContinueShopping}
-          className="flex items-center space-x-2 text-gray-600 hover:text-black transition-colors duration-200"
+          className="flex items-center space-x-2 text-gray-700 hover:text-black transition-colors duration-200 font-body font-semibold"
         >
           <ArrowLeft className="h-5 w-5" />
           <span>Continue Shopping</span>
         </button>
-        <h1 className="text-3xl font-playfair font-semibold text-black">Your Cart</h1>
-        <h1 className="text-3xl font-noto font-semibold text-black">Your Cart</h1>
+        <h1 className="text-4xl font-heading font-bold text-black">Your Cart</h1>
         <button
           onClick={clearCart}
-          className="text-red-500 hover:text-red-600 transition-colors duration-200"
+          className="text-gray-600 hover:text-black transition-colors duration-200 font-body font-semibold"
         >
           Clear All
         </button>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-8">
+      <div className="bg-white rounded-2xl shadow-lg overflow-hidden mb-8 border-2 border-gray-100">
         {cartItems.map((item, index) => (
-          <div key={item.id} className={`p-6 ${index !== cartItems.length - 1 ? 'border-b border-cream-200' : ''}`}>
+          <div key={item.id} className={`p-6 ${index !== cartItems.length - 1 ? 'border-b-2 border-gray-100' : ''} hover:bg-gray-50 transition-colors duration-200`}>
             <div className="flex items-center justify-between">
               <div className="flex-1">
-                <h3 className="text-lg font-noto font-medium text-black mb-1">{item.name}</h3>
+                <h3 className="text-xl font-heading font-bold text-black mb-2">{item.name}</h3>
                 {item.selectedVariation && (
-                  <p className="text-sm text-gray-500 mb-1">Size: {item.selectedVariation.name}</p>
+                  <p className="text-sm text-gray-600 font-body mb-1">Size: <span className="font-semibold">{item.selectedVariation.name}</span></p>
                 )}
                 {item.selectedAddOns && item.selectedAddOns.length > 0 && (
-                  <p className="text-sm text-gray-500 mb-1">
-                    Add-ons: {item.selectedAddOns.map(addOn => 
+                  <p className="text-sm text-gray-600 font-body mb-2">
+                    Add-ons: <span className="font-semibold">{item.selectedAddOns.map(addOn => 
                       addOn.quantity && addOn.quantity > 1 
                         ? `${addOn.name} x${addOn.quantity}`
                         : addOn.name
-                    ).join(', ')}
+                    ).join(', ')}</span>
                   </p>
                 )}
-                <p className="text-lg font-semibold text-black">₱{item.totalPrice} each</p>
+                <p className="text-lg font-body font-bold text-secondary">₱{item.totalPrice.toFixed(2)} each</p>
               </div>
               
-              <div className="flex items-center space-x-4 ml-4">
-                <div className="flex items-center space-x-3 bg-yellow-100 rounded-full p-1">
+              <div className="flex items-center space-x-6 ml-6">
+                <div className="flex items-center space-x-3 bg-secondary/20 rounded-xl p-2 border-2 border-secondary">
                   <button
                     onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                    className="p-2 hover:bg-yellow-200 rounded-full transition-colors duration-200"
+                    className="p-2 hover:bg-secondary/30 rounded-lg transition-colors duration-200"
                   >
-                    <Minus className="h-4 w-4" />
+                    <Minus className="h-5 w-5 text-black" />
                   </button>
-                  <span className="font-semibold text-black min-w-[32px] text-center">{item.quantity}</span>
+                  <span className="font-bold text-black min-w-[40px] text-center font-body text-lg">{item.quantity}</span>
                   <button
                     onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                    className="p-2 hover:bg-yellow-200 rounded-full transition-colors duration-200"
+                    className="p-2 hover:bg-secondary/30 rounded-lg transition-colors duration-200"
                   >
-                    <Plus className="h-4 w-4" />
+                    <Plus className="h-5 w-5 text-black" />
                   </button>
                 </div>
                 
-                <div className="text-right">
-                  <p className="text-lg font-semibold text-black">₱{item.totalPrice * item.quantity}</p>
+                <div className="text-right min-w-[100px]">
+                  <p className="text-2xl font-heading font-bold text-black">₱{(item.totalPrice * item.quantity).toFixed(2)}</p>
                 </div>
                 
                 <button
                   onClick={() => removeFromCart(item.id)}
-                  className="p-2 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-full transition-all duration-200"
+                  className="p-3 text-gray-400 hover:text-black hover:bg-gray-200 rounded-xl transition-all duration-200"
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <Trash2 className="h-5 w-5" />
                 </button>
               </div>
             </div>
@@ -113,15 +112,15 @@ const Cart: React.FC<CartProps> = ({
         ))}
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm p-6">
-        <div className="flex items-center justify-between text-2xl font-noto font-semibold text-black mb-6">
-          <span>Total:</span>
-          <span>₱{parseFloat(getTotalPrice() || 0).toFixed(2)}</span>
+      <div className="bg-white rounded-2xl shadow-lg p-8 border-2 border-secondary">
+        <div className="flex items-center justify-between mb-8 pb-6 border-b-2 border-gray-100">
+          <span className="text-2xl font-heading font-bold text-gray-700">Total:</span>
+          <span className="text-4xl font-heading font-bold text-black">₱{parseFloat(getTotalPrice() || 0).toFixed(2)}</span>
         </div>
         
         <button
           onClick={onCheckout}
-          className="w-full bg-red-600 text-white py-4 rounded-xl hover:bg-red-700 transition-all duration-200 transform hover:scale-[1.02] font-medium text-lg"
+          className="w-full bg-secondary hover:bg-accent-dark text-white py-5 rounded-xl transition-all duration-300 transform hover:scale-105 font-body font-bold text-xl shadow-lg"
         >
           Proceed to Checkout
         </button>

@@ -2,7 +2,6 @@ import React from 'react';
 import { MenuItem, CartItem } from '../types';
 import { useCategories } from '../hooks/useCategories';
 import MenuItemCard from './MenuItemCard';
-import MobileNav from './MobileNav';
 
 // Preload images for better performance
 const preloadImages = (items: MenuItem[]) => {
@@ -40,22 +39,6 @@ const Menu: React.FC<MenuProps> = ({ menuItems, addToCart, cartItems, updateQuan
     }
   }, [menuItems, activeCategory]);
 
-  const handleCategoryClick = (categoryId: string) => {
-    setActiveCategory(categoryId);
-    const element = document.getElementById(categoryId);
-    if (element) {
-      const headerHeight = 64; // Header height
-      const mobileNavHeight = 60; // Mobile nav height
-      const offset = headerHeight + mobileNavHeight + 20; // Extra padding
-      const elementPosition = element.offsetTop - offset;
-      
-      window.scrollTo({
-        top: elementPosition,
-        behavior: 'smooth'
-      });
-    }
-  };
-
   React.useEffect(() => {
     if (categories.length > 0) {
       // Set default to dim-sum if it exists, otherwise first category
@@ -87,32 +70,68 @@ const Menu: React.FC<MenuProps> = ({ menuItems, addToCart, cartItems, updateQuan
 
   return (
     <>
-      <MobileNav 
-        activeCategory={activeCategory}
-        onCategoryClick={handleCategoryClick}
-      />
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div className="text-center mb-12">
-        <h2 className="text-4xl font-noto font-semibold text-black mb-4">Our Menu</h2>
-        <p className="text-gray-600 max-w-2xl mx-auto">
-          Discover our selection of authentic dim sum, flavorful noodles, and traditional Asian dishes, 
-          all prepared with fresh ingredients and authentic techniques.
-        </p>
+      <main className="pb-16">
+      {/* Event Catering Section */}
+      <div className="text-center mb-16">
+        <div className="w-full bg-secondary p-6 sm:p-8">
+          <h3 className="text-2xl sm:text-4xl font-heading font-bold text-black mb-6 mt-8">
+            PERFECT ADDITION TO YOUR SPECIAL DAY!
+          </h3>
+          
+          <p className="text-sm sm:text-base font-body text-gray-900 mb-6">
+            Birthdays, Wedding, Reunions, School Events, Corporate Events, Small Gathering etc.
+          </p>
+          
+          
+            <p className="text-base sm:text-lg font-body font-semibold text-black mb-4">
+              Inclusions:
+            </p>
+            <ul className="space-y-2 text-left max-w-2xl mx-auto font-body text-gray-900 text-sm sm:text-base mb-8">
+              <li>• Coffee Cart Set-up</li>
+              <li>• Menu Board</li>
+              <li>• Custom Event Signage</li>
+              <li>• Customized Claiming Stub (to be provided before the event starts)</li>
+            </ul>
+            <div className="border-t border-black/20 pt-1">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mt-8 max-w-4xl mx-auto">
+              <div className="text-left md:text-center">
+                <p className="text-base sm:text-lg font-body font-semibold text-black mb-4">
+                  ADDITIONALS:
+                </p>
+                <ul className="space-y-2 font-body text-gray-900 text-sm sm:text-base md:inline-block md:text-left">
+                  <li>+ 1 Hour - P500</li>
+                  <li>+ 10 Cups - P1,000</li>
+                </ul>
+              </div>
+
+              <div className="text-left md:text-center">
+                <p className="text-base sm:text-lg font-body font-semibold text-black mb-4">
+                  TRANSPORTATION FEE:
+                </p>
+                <ul className="space-y-2 font-body text-gray-900 text-sm sm:text-base md:inline-block md:text-left">
+                  <li>Nearby Areas (Bulacan) - FREE</li>
+                  <li>Other Areas - starts at P1,000<br/><span className="text-xs">(depends on location)</span></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       {categories.map((category) => {
         const categoryItems = menuItems.filter(item => item.category === category.id);
         
         if (categoryItems.length === 0) return null;
         
         return (
-          <section key={category.id} id={category.id} className="mb-16">
-            <div className="flex items-center mb-8">
-              <span className="text-3xl mr-3">{category.icon}</span>
-              <h3 className="text-3xl font-noto font-medium text-black">{category.name}</h3>
+          <section key={category.id} id={category.id} className="mb-20">
+            <div className="flex items-center mb-10 pb-4 border-b-2 border-secondary">
+              <span className="text-4xl mr-4">{category.icon}</span>
+              <h3 className="text-4xl font-heading font-bold text-black">{category.name}</h3>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {categoryItems.map((item) => {
                 const cartItem = cartItems.find(cartItem => cartItem.id === item.id);
                 return (
@@ -129,6 +148,7 @@ const Menu: React.FC<MenuProps> = ({ menuItems, addToCart, cartItems, updateQuan
           </section>
         );
       })}
+      </div>
       </main>
     </>
   );
