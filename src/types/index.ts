@@ -76,4 +76,5 @@ export interface SiteSettings {
   currency_code: string;
   hero_image: string;
   gallery_images: string[];
+  bottom_banner_image: string;
 }

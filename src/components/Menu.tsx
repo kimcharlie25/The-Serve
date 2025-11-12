@@ -135,6 +135,17 @@ const Menu: React.FC<MenuProps> = ({ menuItems, addToCart, cartItems, updateQuan
         </section>
       )}
       </main>
+
+      {/* Bottom Banner Section */}
+      {siteSettings?.bottom_banner_image && (
+        <div className="w-full h-[400px] sm:h-[500px] md:h-[600px] overflow-hidden bg-gray-200">
+          <img 
+            src={siteSettings.bottom_banner_image} 
+            alt="Bottom Banner" 
+            className="w-full h-full object-cover"
+          />
+        </div>
+      )}
     </>
   );
 };

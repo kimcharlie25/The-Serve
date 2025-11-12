@@ -35,7 +35,8 @@ export const useSiteSettings = () => {
         currency: data.find(s => s.id === 'currency')?.value || 'PHP',
         currency_code: data.find(s => s.id === 'currency_code')?.value || 'PHP',
         hero_image: data.find(s => s.id === 'hero_image')?.value || 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=2000&q=80',
-        gallery_images: galleryImages
+        gallery_images: galleryImages,
+        bottom_banner_image: data.find(s => s.id === 'bottom_banner_image')?.value || 'https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&w=2000&q=80'
       };
 
       setSiteSettings(settings);

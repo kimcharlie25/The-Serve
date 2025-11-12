@@ -18,6 +18,8 @@ const SiteSettingsManager: React.FC = () => {
   const [heroFile, setHeroFile] = useState<File | null>(null);
   const [heroPreview, setHeroPreview] = useState<string>('');
   const [galleryImages, setGalleryImages] = useState<string[]>([]);
+  const [bottomBannerFile, setBottomBannerFile] = useState<File | null>(null);
+  const [bottomBannerPreview, setBottomBannerPreview] = useState<string>('');
 
   React.useEffect(() => {
     if (siteSettings) {
@@ -30,6 +32,7 @@ const SiteSettingsManager: React.FC = () => {
       setLogoPreview(siteSettings.site_logo);
       setHeroPreview(siteSettings.hero_image);
       setGalleryImages(siteSettings.gallery_images || []);
+      setBottomBannerPreview(siteSettings.bottom_banner_image);
     }
   }, [siteSettings]);
 
@@ -89,6 +92,18 @@ const SiteSettingsManager: React.FC = () => {
     }
   };
 
+  const handleBottomBannerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setBottomBannerFile(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setBottomBannerPreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSave = async () => {
     try {
       let logoUrl = logoPreview;
@@ -106,6 +121,13 @@ const SiteSettingsManager: React.FC = () => {
         heroUrl = uploadedUrl;
       }
 
+      // Upload new bottom banner if selected
+      let bottomBannerUrl = bottomBannerPreview;
+      if (bottomBannerFile) {
+        const uploadedUrl = await uploadImage(bottomBannerFile);
+        bottomBannerUrl = uploadedUrl;
+      }
+
       // Update all settings
       await updateSiteSettings({
         site_name: formData.site_name,
@@ -113,12 +135,14 @@ const SiteSettingsManager: React.FC = () => {
         currency: formData.currency,
         currency_code: formData.currency_code,
         site_logo: logoUrl,
-        hero_image: heroUrl
+        hero_image: heroUrl,
+        bottom_banner_image: bottomBannerUrl
       });
 
       setIsEditing(false);
       setLogoFile(null);
       setHeroFile(null);
+      setBottomBannerFile(null);
     } catch (error) {
       console.error('Error saving site settings:', error);
     }
@@ -135,10 +159,12 @@ const SiteSettingsManager: React.FC = () => {
       setLogoPreview(siteSettings.site_logo);
       setHeroPreview(siteSettings.hero_image);
       setGalleryImages(siteSettings.gallery_images || []);
+      setBottomBannerPreview(siteSettings.bottom_banner_image);
     }
     setIsEditing(false);
     setLogoFile(null);
     setHeroFile(null);
+    setBottomBannerFile(null);
   };
 
   if (loading) {
@@ -350,6 +376,42 @@ const SiteSettingsManager: React.FC = () => {
                   <span>{uploading ? 'Uploading...' : 'Add Gallery Images'}</span>
                 </label>
                 <p className="text-xs text-gray-500 mt-2">You can select multiple images at once</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Bottom Banner Image */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Bottom Banner Image (Below Gallery)
+          </label>
+          <div className="space-y-4">
+            {bottomBannerPreview && (
+              <div className="w-full h-48 rounded-lg overflow-hidden bg-gray-100">
+                <img
+                  src={bottomBannerPreview}
+                  alt="Bottom Banner"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
+            {isEditing && (
+              <div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleBottomBannerChange}
+                  className="hidden"
+                  id="bottom-banner-upload"
+                />
+                <label
+                  htmlFor="bottom-banner-upload"
+                  className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors duration-200 flex items-center space-x-2 cursor-pointer inline-flex"
+                >
+                  <Upload className="h-4 w-4" />
+                  <span>Upload Bottom Banner</span>
+                </label>
               </div>
             )}
           </div>
